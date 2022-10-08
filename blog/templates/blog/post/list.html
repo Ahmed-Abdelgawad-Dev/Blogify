@@ -11,4 +11,8 @@
 </p>
 {{ post.body|truncatewords:30|linebreaks }}
 {% endfor %}
+{% comment %} FBV {% endcomment %}
+{% include "blog/pagination.html" with page=posts %}
+{% comment %} CBV {% endcomment %}
+{% include "blog/pagination.html" with page=page_obj %}
 {% endblock %}
