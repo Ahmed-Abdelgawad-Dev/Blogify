@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd party apps
     "django_browser_reload",
+    "taggit",
     # My apps
     'blog.apps.BlogConfig',
 ]
@@ -106,15 +107,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-
-
-
-
-
-
-
-
 JAZZMIN_UI_TWEAKS = {
     "theme": "darkly",
 }
@@ -132,13 +124,16 @@ JAZZMIN_SETTINGS = {
     "search_model": "auth.User",
     "user_avatar": None,
     "topmenu_links": [
-        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
+        {"name": "Home",  "url": "admin:index",
+            "permissions": ["auth.view_user"]},
+        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues",
+            "new_window": True},
         {"model": "auth.User"},
         {"app": "books"},
     ],
     "usermenu_links": [
-        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
+        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues",
+            "new_window": True},
         {"model": "auth.user"}
     ],
     "show_sidebar": True,

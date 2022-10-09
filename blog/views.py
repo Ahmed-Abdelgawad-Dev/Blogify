@@ -3,9 +3,12 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
 from django.views.generic import ListView
 from django.core.mail import send_mail
+from django.views.decorators.http import require_POST
+# 3rd Party
+from taggit.models import Tag
+# Mine
 from .models import Post
 from .forms import EmailPostForm, CommentForm
-from django.views.decorators.http import require_POST
 
 
 @require_POST
@@ -22,7 +25,6 @@ def post_comment(request, post_id):
                            {'post': post,
                             'form': form,
                             'comment': comment})
-
 
 
 def post_share(request, post_id):
@@ -46,6 +48,24 @@ def post_share(request, post_id):
     return render(request, 'blog/post/share.html', context)
 
 
+# FBV
+def post_list(request, tag_slug=None):
+    post_list = Post.objects.all()
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        post_list = post_list.filter(tags__in=[tag])
+    paginator = Paginator(post_list, 3)
+    page_number = request.GET.get('page', 1)
+    try:
+        posts = paginator.page(page_number)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+    context = {'posts': posts, 'tag': tag}
+    return render(request, 'blog/post/list.html', context)
+
 # CBV
 class PostListView(ListView):
     queryset = Post.published.all()
@@ -66,18 +86,4 @@ def post_detail(request, year: int, month: int, day: int, post: str):
     comments = post.comments.filter(active=True)
     form = CommentForm()
     context = {'post': post, 'comments': comments, 'form': form}
-    return render(request, 'blog/post/detail.html',context)
-
-
-# # FBV
-# def post_list(request):
-#     post_list = Post.objects.all()
-#     paginator = Paginator(post_list, 3)
-#     page_number = request.GET.get('page', 1)
-#     try:
-#         posts = paginator.page(page_number)
-#     except PageNotAnInteger:
-#         posts = paginator.page(1)
-#     except EmptyPage:
-#         posts = paginator.page(paginator.num_pages)
-#     return render(request, 'blog/post/list.html', {'posts': posts})
+    return render(request, 'blog/post/detail.html', context)
