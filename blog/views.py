@@ -4,6 +4,7 @@ from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
 from django.views.generic import ListView
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
+from django.db.models import Count
 # 3rd Party
 from taggit.models import Tag
 # Mine
@@ -67,6 +68,8 @@ def post_list(request, tag_slug=None):
     return render(request, 'blog/post/list.html', context)
 
 # CBV
+
+
 class PostListView(ListView):
     queryset = Post.published.all()
     context_object_name = 'posts'
@@ -85,5 +88,9 @@ def post_detail(request, year: int, month: int, day: int, post: str):
     )
     comments = post.comments.filter(active=True)
     form = CommentForm()
-    context = {'post': post, 'comments': comments, 'form': form}
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
+    context = {'post': post, 'comments': comments,
+               'form': form, 'similar_posts': similar_posts}
     return render(request, 'blog/post/detail.html', context)
