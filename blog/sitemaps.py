@@ -10,6 +10,6 @@ class PostSitemap(Sitemap):
         posts = Post.published.all()
         return posts
 
-    def lastmod(self, item):
-        return item.updated
+    def lastmod(self, obj):
+        return obj.updated
     
